@@ -5,8 +5,6 @@ VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trainBPN", "TrainBPN\trainBPN.vcxproj", "{581F0A35-284A-4AF2-8881-2A3C8ACDE67E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "evalNN", "EvalNN\evalNN.vcxproj", "{2E760655-8817-40FE-9522-BB9993EB4D7C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,14 +21,6 @@ Global
 		{581F0A35-284A-4AF2-8881-2A3C8ACDE67E}.Release|x64.Build.0 = Release|x64
 		{581F0A35-284A-4AF2-8881-2A3C8ACDE67E}.Release|x86.ActiveCfg = Release|Win32
 		{581F0A35-284A-4AF2-8881-2A3C8ACDE67E}.Release|x86.Build.0 = Release|Win32
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Debug|x64.ActiveCfg = Debug|x64
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Debug|x64.Build.0 = Debug|x64
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Debug|x86.ActiveCfg = Debug|Win32
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Debug|x86.Build.0 = Debug|Win32
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Release|x64.ActiveCfg = Release|x64
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Release|x64.Build.0 = Release|x64
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Release|x86.ActiveCfg = Release|Win32
-		{2E760655-8817-40FE-9522-BB9993EB4D7C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
