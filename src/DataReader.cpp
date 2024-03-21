@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <memory>
 
 //-------------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ namespace bpn
 		int32_t numInputs,
 		int32_t numOutputs,
 		Format format,
-		int32_t verbosity)
+		int verbosity)
 		: m_filename(filename),
 		m_numInputs(numInputs),
 		m_numOutputs(numOutputs),
@@ -72,19 +73,18 @@ namespace bpn
 		}
 		else
 		{
-			// should be a valid filename
-			std::ifstream* tmp = new std::ifstream();
+			auto fileStream(std::make_unique<std::ifstream>());
 			if (m_dataFormat == Format::binary)
 			{
-				tmp->open(m_filename, std::ios::in | std::ios::binary);
+				fileStream->open(m_filename, std::ios::in | std::ios::binary);
 			}
 			else
 			{
-				tmp->open(m_filename, std::ios::in);
+				fileStream->open(m_filename, std::ios::in);
 			}
-			if (!tmp->is_open())
+			if (!fileStream->is_open())
 				throw std::runtime_error("Unable to read from input file");
-			m_dataStream = tmp;
+			m_dataStream = fileStream.release();
 		}
 	}
 
