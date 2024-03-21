@@ -57,7 +57,7 @@ namespace bpn
 	DataReader::DataReader(std::string const& filename,
 		int32_t numInputs,
 		int32_t numOutputs,
-		bpn::InputDataFormat format,
+		Format format,
 		int32_t verbosity)
 		: m_filename(filename),
 		m_numInputs(numInputs),
@@ -74,7 +74,7 @@ namespace bpn
 		{
 			// should be a valid filename
 			std::ifstream* tmp = new std::ifstream();
-			if (m_dataFormat == binary)
+			if (m_dataFormat == Format::binary)
 			{
 				tmp->open(m_filename, std::ios::in | std::ios::binary);
 			}
@@ -93,7 +93,7 @@ namespace bpn
 		inputValues.clear();
 		std::string line;
 		std::getline(*m_dataStream, line);
-		if (m_dataFormat == bpn::numberList)
+		if (m_dataFormat == bpn::DataReader::Format::numberList)
 		{
 			std::stringstream ss;
 			insertListInStream(ss, line, ",");
@@ -117,7 +117,7 @@ namespace bpn
 		std::vector<TrainingEntry> entries;
 		std::string line;
 
-		if (m_dataFormat == binary)
+		if (m_dataFormat == Format::binary)
 		{
 			int nbData, nbInputValues, nbOutputValues;
 			m_dataStream->read((char*)&nbData, sizeof(int));
@@ -156,7 +156,7 @@ namespace bpn
 
 			}
 		}
-		else if (m_dataFormat == bpn::numberList)
+		else if (m_dataFormat == bpn::DataReader::Format::numberList)
 		{
 			while (!m_dataStream->eof())
 			{

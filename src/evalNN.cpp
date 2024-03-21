@@ -65,11 +65,11 @@ int main(int argc, char* argv[])
 	std::string const importFile = cmdParser.get<std::string>("i");
 	int32_t verbosity = cmdParser.get<int32_t>("v");
 
-	bpn::InputDataFormat inputDataFormat;
+	bpn::DataReader::Format inputDataFormat;
 	if (format.compare("binary") == 0)
-		inputDataFormat = bpn::binary;
+		inputDataFormat = bpn::DataReader::Format::binary;
 	if (format.compare("numberList") == 0)
-		inputDataFormat = bpn::numberList;
+		inputDataFormat = bpn::DataReader::Format::numberList;
 	else
 		throw std::runtime_error("Invalid format for input data. For more help use --help or -h.");
 
