@@ -13,19 +13,19 @@
 namespace bpn
 {
 
-  std::ostream& operator<<(std::ostream& os, const Matrix& m)
-    {
-      os << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
-      for ( int i=0; i<m.nRows; ++i ) 
-        {
-          os << m(i, 0);
-          for ( int j=1; j<m.nCols; ++j ) 
-            {
-              os << ",\t" << m(i, j);
-            }
-          os << "\n";
-        }
-      return os;
-    }
+	std::ostream& operator<<(std::ostream& os, const Matrix& m)
+	{
+		os << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
+		for (int i = 0; i < m.nRows; ++i)
+		{
+			os << m(i, 0);
+			for (int j = 1; j < m.nCols; ++j)
+			{
+				os << ",\t" << m(i, j);
+			}
+			os << "\n";
+		}
+		return os;
+	}
 
 }

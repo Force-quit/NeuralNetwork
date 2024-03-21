@@ -28,7 +28,7 @@ namespace cli {
 		operator T () const {
 			return this->value;
 		}
-		operator T * () {
+		operator T* () {
 			return this->value;
 		}
 
@@ -105,10 +105,11 @@ namespace cli {
 
 			virtual bool parse(std::ostream& output, std::ostream& error) {
 				try {
-					CallbackArgs args { arguments, output, error };
+					CallbackArgs args{ arguments, output, error };
 					value = callback(args);
 					return true;
-				} catch (...) {
+				}
+				catch (...) {
 					return false;
 				}
 			}
@@ -132,7 +133,8 @@ namespace cli {
 				try {
 					value = Parser::parse(arguments, value);
 					return true;
-				} catch (...) {
+				}
+				catch (...) {
 					return false;
 				}
 			}
@@ -217,7 +219,7 @@ namespace cli {
 		template<class T>
 		static std::vector<T> parse(const std::vector<std::string>& elements, const std::vector<T>&) {
 			const T defval = T();
-			std::vector<T> values { };
+			std::vector<T> values{ };
 			std::vector<std::string> buffer(1);
 
 			for (const auto& element : elements) {
@@ -254,7 +256,7 @@ namespace cli {
 
 		template<class T>
 		static std::string stringify(const std::vector<T>& values) {
-			std::stringstream ss { };
+			std::stringstream ss{ };
 			ss << "[ ";
 
 			for (const auto& value : values) {
@@ -270,7 +272,7 @@ namespace cli {
 		}
 
 	public:
-        // Constructors
+		// Constructors
 		explicit Parser(int argc, const char** argv) :
 			_appname(argv[0]), helpText("") {
 			for (int i = 1; i < argc; ++i) {
@@ -293,9 +295,9 @@ namespace cli {
 			}
 		}
 
-        void setHelpText(const std::string& text) {
-            helpText = text;
-        }
+		void setHelpText(const std::string& text) {
+			helpText = text;
+		}
 
 		bool has_help() const {
 			for (const auto& command : _commands) {
@@ -308,14 +310,14 @@ namespace cli {
 		}
 
 		void enable_help() {
-			set_callback("h", "help", std::function<bool(CallbackArgs&)>([this](CallbackArgs& args){
+			set_callback("h", "help", std::function<bool(CallbackArgs&)>([this](CallbackArgs& args) {
 				args.output << this->usage();
-				#pragma warning(push)
-				#pragma warning(disable: 4702)
+#pragma warning(push)
+#pragma warning(disable: 4702)
 				exit(0);
 				return false;
-				#pragma warning(pop)
-			}), "", true);
+#pragma warning(pop)
+				}), "", true);
 		}
 
 		void disable_help() {
@@ -329,26 +331,26 @@ namespace cli {
 
 		template<typename T>
 		void set_default(bool is_required, const std::string& description = "") {
-			auto command = new CmdArgument<T> { "", "", description, is_required, false };
+			auto command = new CmdArgument<T>{ "", "", description, is_required, false };
 			_commands.push_back(command);
 		}
 
 		template<typename T>
 		void set_required(const std::string& name, const std::string& alternative, const std::string& description = "", bool dominant = false) {
-			auto command = new CmdArgument<T> { name, alternative, description, true, dominant };
+			auto command = new CmdArgument<T>{ name, alternative, description, true, dominant };
 			_commands.push_back(command);
 		}
 
 		template<typename T>
 		void set_optional(const std::string& name, const std::string& alternative, T defaultValue, const std::string& description = "", bool dominant = false) {
-			auto command = new CmdArgument<T> { name, alternative, description, false, dominant };
+			auto command = new CmdArgument<T>{ name, alternative, description, false, dominant };
 			command->value = defaultValue;
 			_commands.push_back(command);
 		}
 
 		template<typename T>
 		void set_callback(const std::string& name, const std::string& alternative, std::function<T(CallbackArgs&)> callback, const std::string& description = "", bool dominant = false) {
-			auto command = new CmdFunction<T> { name, alternative, description, false, dominant };
+			auto command = new CmdFunction<T>{ name, alternative, description, false, dominant };
 			command->callback = callback;
 			_commands.push_back(command);
 		}
@@ -370,8 +372,8 @@ namespace cli {
 		bool doesArgumentExist(std::string name, std::string altName)
 		{
 			for (const auto& argument : _arguments) {
-				
-				if(argument == '-'+ name || argument == altName)
+
+				if (argument == '-' + name || argument == altName)
 				{
 					return true;
 				}
@@ -396,10 +398,12 @@ namespace cli {
 					if (associated != nullptr) {
 						current = associated;
 						associated->handled = true;
-					} else if (current == nullptr) {
+					}
+					else if (current == nullptr) {
 						error << no_default();
 						return false;
-					} else {
+					}
+					else {
 						current->arguments.push_back(_arguments[i]);
 						current->handled = true;
 						if (!current->variadic)
@@ -506,8 +510,8 @@ namespace cli {
 		}
 
 		std::string usage() const {
-			std::stringstream ss { };
-            ss << helpText;
+			std::stringstream ss{ };
+			ss << helpText;
 			ss << "Available parameters:\n\n";
 
 			for (const auto& command : _commands) {
@@ -536,7 +540,7 @@ namespace cli {
 		}
 
 		std::string howto_required(CmdBase* command) const {
-			std::stringstream ss { };
+			std::stringstream ss{ };
 			ss << "The parameter " << command->name << " is required.\n";
 			ss << command->description << '\n';
 			print_help(ss);
@@ -544,7 +548,7 @@ namespace cli {
 		}
 
 		std::string howto_use(CmdBase* command) const {
-			std::stringstream ss { };
+			std::stringstream ss{ };
 			ss << "The parameter " << command->name << " has invalid arguments.\n";
 			ss << command->description << '\n';
 			print_help(ss);
@@ -552,7 +556,7 @@ namespace cli {
 		}
 
 		std::string no_default() const {
-			std::stringstream ss { };
+			std::stringstream ss{ };
 			ss << "No default parameter has been specified.\n";
 			ss << "The given argument must be used with a parameter.\n";
 			print_help(ss);
