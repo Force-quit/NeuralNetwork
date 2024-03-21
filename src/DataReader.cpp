@@ -10,6 +10,7 @@
 #include <iosfwd>
 #include <algorithm>
 #include <iostream>
+#include <random>
 
 //-------------------------------------------------------------------------
 
@@ -123,40 +124,6 @@ namespace bpn
 			m_dataStream->read((char*)&nbInputValues, sizeof(int));
 			m_dataStream->read((char*)&nbOutputValues, sizeof(int));
 
-			//std::cout << "Nb data    = " << nbData << std::endl;
-			//std::cout << "Nb input   = " << nbInputValues << std::endl;
-			//std::cout << "Nb output  = " << nbOutputValues << std::endl;
-			//std::cout << "m_numInputs  = " << m_numInputs << std::endl;
-			//std::cout << "m_numOutputs = " << m_numOutputs << std::endl;
-			//for (int k = 0; k < 70000; ++k) 
-			//  {
-			//    std::cout << k << ".\n";
-			//    for (int i = 0; i < 28 ; ++i) 
-			//      {
-			//        for (int j = 0; j < 28 ; ++j) 
-			//          {
-			//            int x = 0;
-			//            m_dataStream->read((char*)&x, sizeof(char));
-			//            std::cout << " " << std::setw(3) << x;
-			//          }
-			//        std::cout << '\n';
-			//      }
-			//    std::cout << '\n';
-			//    for (int i=0; i<10; ++i) 
-			//      {
-			//        int x = 0;
-			//        m_dataStream->read((char*)&x, sizeof(char));
-			//        std::cout << " " <<  x;
-			//      }
-			//    std::cout << '\n';
-			//    for (int i=0; i<10; ++i) 
-			//      {
-			//        std::cout << " " << i;
-			//      }
-			//    std::cout << '\n';
-			//    std::cout << std::endl;
-			//  }
-
 			for (int i = 0; i < nbData; ++i)
 			{
 				entries.push_back(TrainingEntry());
@@ -242,7 +209,9 @@ namespace bpn
 	{
 		assert(!entries.empty());
 
-		std::random_shuffle(entries.begin(), entries.end());
+		std::random_device rd;
+		std::mt19937 g(rd());
+		std::shuffle(entries.begin(), entries.end(), g);
 
 		// Training set
 		int32_t const numEntries = (int32_t)entries.size();

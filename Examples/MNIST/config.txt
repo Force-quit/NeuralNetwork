@@ -10,7 +10,7 @@
 ### 
 ### This information is mandatory.
 ###
-datafile = mnist_dataset.csv
+datafile = mnist-ubyte
 
 ### Format of the training data file.
 ###      numberList, Comma separated list of numbers. The first ones are the
@@ -23,7 +23,8 @@ datafile = mnist_dataset.csv
 ###                  then extra zeros are added. If more, extra characters are
 ###                  ignored.
 ### Default is `numberList`
-format = numberList
+format = binary
+#format = numberList
 # format = text
 
 ### The shape of a new neural network
