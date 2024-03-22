@@ -57,7 +57,7 @@ namespace bpn
 		 */
 		virtual std::string serialize() const
 		{
-			return NULL;
+			return "";
 		}
 
 		static ActivationFunction* deserialize(const std::string& s);
