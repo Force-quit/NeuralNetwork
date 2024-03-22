@@ -38,7 +38,7 @@ namespace bpn
 			// add one to actualLayerSize for bias
 			int32_t actualLayerSize = m_pNetwork->m_layerSizes[i];
 			int32_t nextLayerSize = m_pNetwork->m_layerSizes[i + 1];
-			m_deltas.push_back(Matrix(actualLayerSize + 1, nextLayerSize, 0.0));
+			m_deltas.emplace_back(actualLayerSize + 1, nextLayerSize, 0.0);
 		}
 
 		// m_errorGradients[0] is not used... dummy value to fill the spot

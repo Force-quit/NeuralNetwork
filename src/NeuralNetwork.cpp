@@ -77,7 +77,7 @@ namespace bpn
 		for (int i = 0; i < m_numLayers - 1; ++i)
 		{
 			// add one the the input size for th bias
-			m_weightsByLayer.push_back(Matrix(m_layerSizes[i] + 1, m_layerSizes[i + 1], 0.0));
+			m_weightsByLayer.emplace_back(m_layerSizes[i] + 1, m_layerSizes[i + 1], 0.0);
 		}
 
 	}

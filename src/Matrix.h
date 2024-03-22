@@ -2,90 +2,56 @@
 // Simple back-propagation neural network example
 // Copyright (C) 2017  Bobby Anguelov
 // Copyright (C) 2018  Xavier Provençal
+// Copyright (C) 2024  Émile Laforce
 // MIT license: https://opensource.org/licenses/MIT
 //-------------------------------------------------------------------------
-//
+
 #pragma once
 
-#include <vector>
+#include <cassert>
 #include <iostream>
-#include <string.h>
+#include <memory>
 
 namespace bpn
 {
-
 	class Matrix
 	{
 	public:
-
-		Matrix() : nRows(0), nCols(0), m(NULL) {}
-
-		Matrix(int nRows, int nCols, double value = 0.0) : m(NULL)
+		constexpr Matrix(int nRows, int nCols, double value = 0.0) noexcept
+			: nRows{ nRows }, nCols{ nCols }, data(std::make_unique<double[]>(nRows* nCols))
 		{
-			init(nRows, nCols, value);
-		}
-
-		Matrix(const Matrix& other) : nRows(other.nRows), nCols(other.nCols)
-		{
-			this->m = new double[nRows * nCols];
-			memcpy(this->m, other.m, nRows * nCols * sizeof(double));
-		}
-
-
-		void init(int nRows, int nCols, double value = 0.0)
-		{
-			if (nRows == 0 || nCols == 0)
+			assert(nRows > 0 && nCols > 0 && "Matrix constructor has 0 size");
+			for (int i{}; i < nRows * nCols; ++i)
 			{
-				throw std::runtime_error("Matrix constructor has 0 size");
-			}
-			if (m != NULL)
-			{
-				throw std::runtime_error("Can't init a matrix that already has been initialized");
-			}
-			this->nRows = nRows;
-			this->nCols = nCols;
-			this->m = new double[nRows * nCols];
-			for (int i = 0; i < nRows * nCols; ++i)
-			{
-				m[i] = value;
+				data[i] = value;
 			}
 		}
 
-
-		~Matrix()
+		constexpr Matrix(const Matrix& other) noexcept
+			: nRows{ other.nRows }, nCols{ other.nCols }, data(std::make_unique<double[]>(nRows* nCols))
 		{
-			delete[] m;
+			std::copy(data.get(), data.get() + nRows * nCols, other.data.get());
 		}
 
-
-		inline int coordsToIndex(int r, int c) const
+		// TODO Multidimensional subscript operator when MSVC supports it
+		[[nodiscard]] constexpr double& operator()(int r, int c)
 		{
-			return r * nCols + c;
+			assert(r > 0 && r < nRows && c > 0 && c < nCols && "Matrix subscript out of bounds");
+			return data[r * nCols + c];
 		}
 
-		double& operator()(int r, int c)
+		// TODO Multidimensional subscript operator when MSVC supports it
+		[[nodiscard]] constexpr double operator()(int r, int c) const
 		{
-			if (r < 0 || r >= nRows || c < 0 || c >= nCols)
-			{
-				throw std::runtime_error("Matrix subscript out of bounds");
-			}
-			return m[coordsToIndex(r, c)];
-		}
-
-		double operator()(int r, int c) const
-		{
-			if (r < 0 || r >= nRows || c < 0 || c >= nCols)
-			{
-				throw std::runtime_error("Matrix subscript out of bounds");
-			}
-			return m[coordsToIndex(r, c)];
+			assert(r > 0 && r < nRows && c > 0 && c < nCols && "Matrix subscript out of bounds");
+			return data[r * nCols + c];
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, const Matrix& m);
 
 	private:
-		int nRows;
-		int nCols;
-		double* m;
+		const int nRows;
+		const int nCols;
+		const std::unique_ptr<double[]> data;
 	};
 }
