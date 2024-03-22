@@ -87,10 +87,7 @@ void configureCmdParser(cli::Parser& cmdParser)
 
 int main(int argc, char* argv[])
 {
-
-
-	StopFileWatcher::init("myStopFile");
-
+	StopFileWatcher::init("delete_this_to_stop.txt");
 
 	//
 	// Parameters

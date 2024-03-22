@@ -1,29 +1,25 @@
 #pragma once
 
 #include <fstream>
-#include <iostream>
+#include <filesystem>
 
 class StopFileWatcher
 {
 private:
-	static const char* filename;
+	inline static std::filesystem::path stopFilePath;
 
 public:
 
-	static void init(const char* _filename)
+	static void init(std::filesystem::path filePath)
 	{
-		filename = _filename;
-		std::ofstream f(filename, std::ofstream::out);
-		f << "0" << std::endl;
-		f.close();
+		stopFilePath = filePath;
+		std::ofstream f(stopFilePath);
+		f << "Delete this file to stop the training";
 	}
 
-	static bool doesTheStopFileTellsMeToStop()
+	[[nodiscard]] static bool stopRequested()
 	{
-		int x;
-		std::ifstream f(filename, std::ifstream::in);
-		f >> x;
-		return (x == 1);
+		return !std::filesystem::exists(stopFilePath);
 	}
 };
 

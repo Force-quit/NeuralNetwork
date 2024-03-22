@@ -24,7 +24,6 @@
     <ClCompile Include="..\src\Matrix.cpp" />
     <ClCompile Include="..\src\NeuralNetwork.cpp" />
     <ClCompile Include="..\src\NeuralNetworkTrainer.cpp" />
-    <ClCompile Include="..\src\StopFileWatcher.cpp" />
     <ClCompile Include="..\src\trainBPN.cpp" />
   </ItemGroup>
   <ItemGroup>

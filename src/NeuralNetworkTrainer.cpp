@@ -88,7 +88,7 @@ namespace bpn
 		// Train network using training dataset for training and generalization dataset for testing
 		//--------------------------------------------------------------------------------------------------------
 
-		while ((!StopFileWatcher::doesTheStopFileTellsMeToStop()) &&
+		while ((!StopFileWatcher::stopRequested()) &&
 			((m_trainingSetAccuracy < m_desiredAccuracy
 				|| m_generalizationSetAccuracy < m_desiredAccuracy)
 				&& m_currentEpoch < m_maxEpochs)
