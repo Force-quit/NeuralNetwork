@@ -56,17 +56,17 @@ namespace bpn
 
 		for (auto layerSize : m_layerSizes)
 		{
-			m_neurons.push_back(Layer(layerSize, Neuron(0, 0)));
+			m_layers.emplace_back(layerSize, Neuron(0, 0));
 		}
-		m_inputNeurons = &m_neurons[0];
-		m_lastHiddenNeurons = &m_neurons[m_numLayers - 2];
-		m_outputNeurons = &m_neurons[m_numLayers - 1];
+		m_inputNeurons = &m_layers[0];
+		m_lastHiddenNeurons = &m_layers[m_numLayers - 2];
+		m_outputNeurons = &m_layers[m_numLayers - 1];
 
 
 		// Add bias values
 		for (int i = 0; i < m_numLayers - 1; ++i)
 		{
-			m_neurons[i].push_back(Neuron(1.0, 1.0));
+			m_layers[i].emplace_back(1.0, 1.0);
 		}
 
 		// Set the size of clamped output 
@@ -122,7 +122,7 @@ namespace bpn
 		assert(input.size() == (unsigned int)m_numInputs);
 		for (int i = 0; i < m_numLayers - 1; ++i)
 		{
-			assert(m_neurons[i].back().value == 1.0);
+			assert(m_layers[i].back().value == 1.0);
 		}
 
 		// Local variables
@@ -152,19 +152,19 @@ namespace bpn
 				// Get weighted sum of pattern and bias neuron
 				for (int32_t prevIdx = 0; prevIdx <= m_layerSizes[i - 1]; ++prevIdx)
 				{
-					activation += m_neurons[i - 1][prevIdx].value * m_weightsByLayer[i - 1](prevIdx, actualIdx);
+					activation += m_layers[i - 1][prevIdx].value * m_weightsByLayer[i - 1](prevIdx, actualIdx);
 					//std::cout << "layer=" << i 
 					//  << ", actualIdx" << actualIdx 
 					//  << ", prevIdx=" << prevIdx 
-					//  << ", activation = " << m_neurons[i-1][prevIdx].value 
+					//  << ", activation = " << m_layers[i-1][prevIdx].value 
 					//  << " * " << m_weightsByLayer[i-1](prevIdx, actualIdx) << std::endl;
 				}
 
 				// Apply activation function
-				m_neurons[i][actualIdx].activation = activation;
-				m_neurons[i][actualIdx].value = m_sigma->evaluate(activation);
+				m_layers[i][actualIdx].activation = activation;
+				m_layers[i][actualIdx].value = m_sigma->evaluate(activation);
 
-				if (std::isnan(m_neurons[i][actualIdx].value))
+				if (std::isnan(m_layers[i][actualIdx].value))
 				{
 					throw std::runtime_error("Training failed. Seem like weights diverged toward infinity");
 				}
@@ -206,7 +206,7 @@ namespace bpn
 			<< "| Input layer       : " << *m_inputNeurons << "\n";
 		for (int32_t i = 1; i < m_numLayers - 1; ++i)
 		{
-			ss << "| Hidden layer #" << i << "   : " << m_neurons[i] << "\n";
+			ss << "| Hidden layer #" << i << "   : " << m_layers[i] << "\n";
 		}
 		ss << "| Output neurons    : " << *m_outputNeurons << "\n"
 			<< "| Clamp o/p neurons : " << m_clampedOutputs << "\n"

@@ -142,7 +142,7 @@ namespace bpn
 		}
 
 		// Return error gradient
-		const Neuron& n = m_pNetwork->m_neurons[layer][index];
+		const Neuron& n = m_pNetwork->m_layers[layer][index];
 		double derivative = m_pNetwork->m_sigma->evalDerivative(n.activation, n.value);
 		return derivative * weightedSum;
 	}
@@ -254,14 +254,14 @@ namespace bpn
 					{
 						m_deltas[layer](actualIdx, nextIdx) +=
 							m_learningRate
-							* m_pNetwork->m_neurons[layer][actualIdx].value
+							* m_pNetwork->m_layers[layer][actualIdx].value
 							* m_errorGradients[layer + 1][nextIdx];
 					}
 					else
 					{
 						m_deltas[layer](actualIdx, nextIdx) =
 							m_learningRate
-							* m_pNetwork->m_neurons[layer][actualIdx].value
+							* m_pNetwork->m_layers[layer][actualIdx].value
 							* m_errorGradients[layer + 1][nextIdx]
 							+ m_momentum * m_deltas[layer](actualIdx, nextIdx);
 					}

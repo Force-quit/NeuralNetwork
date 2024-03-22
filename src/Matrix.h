@@ -36,14 +36,14 @@ namespace bpn
 		// TODO Multidimensional subscript operator when MSVC supports it
 		[[nodiscard]] constexpr double& operator()(int r, int c)
 		{
-			assert(r > 0 && r < nRows && c > 0 && c < nCols && "Matrix subscript out of bounds");
+			assert(r >= 0 && r < nRows && c >= 0 && c < nCols && "Matrix subscript out of bounds");
 			return data[r * nCols + c];
 		}
 
 		// TODO Multidimensional subscript operator when MSVC supports it
 		[[nodiscard]] constexpr double operator()(int r, int c) const
 		{
-			assert(r > 0 && r < nRows && c > 0 && c < nCols && "Matrix subscript out of bounds");
+			assert(r >= 0 && r < nRows && c >= 0 && c < nCols && "Matrix subscript out of bounds");
 			return data[r * nCols + c];
 		}
 
