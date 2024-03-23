@@ -1,29 +1,33 @@
 //-------------------------------------------------------------------------
 // Simple back-propagation neural network example
 // Copyright (C) 2021  Xavier Provençal
+// Copyright (C) 2024 Émile Laforce
 // MIT license: https://opensource.org/licenses/MIT
 //-------------------------------------------------------------------------
 
-
 #include "ActivationFunctions.h"
+#include <ranges>
+#include <stdexcept>
 
 namespace bpn {
 
-	ActivationFunction* ActivationFunction::deserialize(const std::string& s)
+	ActivationFunction* ActivationFunction::deserialize(std::string_view s)
 	{
-		if (s.find("Sigmoid(") != std::string::npos)
+		if (s.contains("Sigmoid("))
 		{
-			double lambda = atof(s.substr(8, s.size() - 9).c_str());
+			auto is_digit = [](char c) { return std::isdigit(c); };
+			double lambda = *std::ranges::find_if(s, is_digit) - '0';
 			return new Sigmoid(lambda);
 		}
-		else if (s.find("ReLU") != std::string::npos)
+		else if (s.contains("ReLU"))
 		{
 			return new ReLU();
 		}
-		else if (s.find("LeakyReLU") != std::string::npos)
+		else if (s.contains("LeakyReLU"))
 		{
 			return new LeakyReLU();
 		}
+
 		throw std::runtime_error("Unknown activation function");
 	}
 

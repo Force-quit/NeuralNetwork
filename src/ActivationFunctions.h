@@ -1,42 +1,28 @@
 //-------------------------------------------------------------------------
 // Simple back-propagation neural network example
 // Copyright (C) 2021 Xavier Provençal
+// Copyright (C) 2024 Émile Laforce
 // MIT license: https://opensource.org/licenses/MIT
 //-------------------------------------------------------------------------
-
 
 #pragma once
 
 #include <cmath>
-#include <stdlib.h>
-#include <iostream>
 #include <string>
-#include <sstream>
-#include <iomanip>
-#include <limits>
-
+#include <string_view>
+#include <format>
 
 namespace bpn
 {
-	enum class ActivationFunctionType
-	{
-		Sigmoid, ReLU
-	};
-
-	class Sigmoid;
-	class ReLU;
-
 	class ActivationFunction
 	{
 	public:
+		virtual ~ActivationFunction() = default;
+
 		/**
 		 * Let f be the activation function, returns f(x)
 		 */
-		virtual double evaluate(double x) const
-		{
-			(void)x;
-			return 0.0;
-		}
+		virtual double evaluate(double x) const = 0;
 
 		/**
 		 * Let f be the activation function, returns f'(x)
@@ -45,22 +31,14 @@ namespace bpn
 		 * the sigmoid activation function, it is faster to compute f'(x) from
 		 * f(x) then from x.
 		 */
-		virtual double evalDerivative(double x, double fx = 0.0) const
-		{
-			(void)x;
-			(void)fx;
-			return 0.0;
-		}
+		virtual double evalDerivative(double x, double fx = 0.0) const = 0;
 
 		/**
 		 * Representation of the function as text.
 		 */
-		virtual std::string serialize() const
-		{
-			return "";
-		}
+		virtual std::string serialize() const = 0;
 
-		static ActivationFunction* deserialize(const std::string& s);
+		static ActivationFunction* deserialize(std::string_view s);
 	};
 
 	class Sigmoid : public ActivationFunction
@@ -74,30 +52,25 @@ namespace bpn
 		 */
 	public:
 
-		Sigmoid() : lambda(1.0)
+		Sigmoid() : lambda{ 1 }
 		{ }
 
-		Sigmoid(double lambda) : lambda(lambda)
+		Sigmoid(double lambda) : lambda{ lambda }
 		{ }
 
-		inline double evaluate(double x) const
+		double evaluate(double x) const override
 		{
 			return 1.0 / (1.0 + std::exp(-lambda * x));
 		}
 
-		inline double evalDerivative(double x, double fx = 0.0) const
+		double evalDerivative(double x, double fx = 0.0) const override
 		{
-			(void)x; // avoid compilation warning for unused variable
 			return lambda * fx * (1.0 - fx);
 		}
 
-		inline std::string serialize() const
+		std::string serialize() const override
 		{
-			std::stringstream ss;
-			ss << "Sigmoid("
-				<< std::setprecision(std::numeric_limits<long double>::digits10 + 1)
-				<< lambda << ")";
-			return ss.str();
+			return std::format("Sigmoid({:.6f})", lambda);
 		}
 
 		const double lambda;
@@ -113,21 +86,18 @@ namespace bpn
 		 */
 	public:
 
-		ReLU() { }
-
-		inline double evaluate(double x) const
+		double evaluate(double x) const override
 		{
 			//return std::log(1.0 + std::exp(x));
 			return (x > 0) ? x : 0;
 		}
 
-		inline double evalDerivative(double x, double fx) const
+		double evalDerivative(double x, double fx) const override
 		{
-			(void)x; (void)fx;
 			return (x > 0) ? 1 : 0;
 		}
 
-		inline std::string serialize() const
+		std::string serialize() const override
 		{
 			return "ReLU";
 		}
@@ -143,26 +113,19 @@ namespace bpn
 		 * non-nul derivative.
 		 */
 	public:
-
-		LeakyReLU() { }
-
-		inline double evaluate(double x) const
+		double evaluate(double x) const override
 		{
 			return (x > 0) ? x : 0.01 * x;
 		}
 
-		inline double evalDerivative(double x, double fx) const
+		double evalDerivative(double x, double fx) const override
 		{
-			(void)x; (void)fx;
 			return (x > 0) ? 1 : 0.01;
 		}
 
-		inline std::string serialize() const
+		std::string serialize() const override
 		{
 			return "LeakyReLU";
 		}
 	};
-
-
 }
-
