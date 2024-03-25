@@ -10,7 +10,7 @@ private:
 
 public:
 
-	static void init(std::filesystem::path filePath)
+	static void init(const std::filesystem::path& filePath)
 	{
 		stopFilePath = filePath;
 		std::ofstream f(stopFilePath);
