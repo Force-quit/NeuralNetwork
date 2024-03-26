@@ -4,6 +4,7 @@
 // 2018 - Xavier Provençal
 // Copyright (C) 2017  Bobby Anguelov
 // Copyright (C) 2018  Xavier Provençal
+// Copyright (C) 2024  Émile Laforce
 // MIT license: https://opensource.org/licenses/MIT
 //-------------------------------------------------------------------------
 
@@ -16,10 +17,9 @@
 #include <sstream>
 #include <iomanip>
 #include <math.h>
+#include <format>
 
 #include "NeuralNetwork.h"
-
-//-------------------------------------------------------------------------
 
 namespace bpn
 {
@@ -42,12 +42,10 @@ namespace bpn
 	{
 	}
 
-
 	Network::Network(std::istream& is)
 	{
 		deserialize(is);
 	}
-
 
 	void Network::InitializeNetwork()
 	{
@@ -115,7 +113,6 @@ namespace bpn
 			}
 		}
 	}
-
 
 	std::vector<int32_t> const& Network::Evaluate(std::vector<double> const& input)
 	{
@@ -297,8 +294,6 @@ namespace bpn
 		return ss.str();
 	}
 
-
-
 	void Network::saveToFile(const char* filename) const
 	{
 		(void)filename;
@@ -309,7 +304,6 @@ namespace bpn
 		(void)filename;
 	}
 
-
 	std::ostream& operator<<(std::ostream& os, const bpn::Network& n)
 	{
 		os << n.selfDisplay();
@@ -318,8 +312,7 @@ namespace bpn
 
 	std::ostream& operator<<(std::ostream& os, const bpn::Neuron& n)
 	{
-		os << "(" << n.activation << ", " << n.value << ")";
+		os << std::format("({}, {})", n.activation, n.value);
 		return os;
 	}
-
 }
