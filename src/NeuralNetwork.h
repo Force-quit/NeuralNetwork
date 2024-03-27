@@ -15,6 +15,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <vector>
+#include <memory>
 
 namespace bpn
 {
@@ -41,9 +42,7 @@ namespace bpn
 		}
 
 	public:
-
-		Network(const std::vector<int>& layerSizes, const ActivationFunction* sigma, const std::string labels);
-		Network(const std::vector<int>& layerSizes, const ActivationFunction* sigma);
+		Network(const std::vector<int>& layerSizes, std::unique_ptr<ActivationFunction>&& sigma, std::string_view labels);
 		Network(std::istream& is);
 
 		std::vector<int32_t> const& Evaluate(std::vector<double> const& input);
@@ -118,8 +117,7 @@ namespace bpn
 		std::vector<int32_t>        m_clampedOutputs;
 		// m_wrigntsByLayer[i] is the matrix of weights from layer i to layer i+1
 		std::vector<Matrix>         m_weightsByLayer;
-		const ActivationFunction* m_sigma;
-
+		std::unique_ptr<const ActivationFunction> m_sigma;
 		std::string                 m_labels;          // labels for the output nodes
 
 	public:

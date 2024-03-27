@@ -225,9 +225,6 @@ int main(int argc, char* argv[])
 	else
 		throw std::runtime_error("Invalid format for input data. For more help use --help or -h.");
 
-	// Load activation function
-	bpn::ActivationFunction* sigma = bpn::ActivationFunction::deserialize(activationFunction);
-
 	// Create neural network
 	bpn::Network* nn = NULL;
 
@@ -239,7 +236,7 @@ int main(int argc, char* argv[])
 		std::stringstream ss(layers);
 		ss >> layerSizes;
 
-		nn = new bpn::Network(layerSizes, sigma, labels);
+		nn = new bpn::Network(layerSizes, bpn::ActivationFunction::deserialize(activationFunction), labels);
 	}
 	else if (importFile.compare("") != 0) // existing network
 	{

@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include <format>
+#include <memory>
 
 namespace bpn
 {
@@ -38,7 +39,7 @@ namespace bpn
 		 */
 		virtual std::string serialize() const = 0;
 
-		static ActivationFunction* deserialize(std::string_view s);
+		static std::unique_ptr<ActivationFunction> deserialize(std::string_view s);
 	};
 
 	class Sigmoid : public ActivationFunction

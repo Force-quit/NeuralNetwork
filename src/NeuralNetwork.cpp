@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <string_view>
 #include <math.h>
 #include <format>
 
@@ -23,9 +24,9 @@
 
 namespace bpn
 {
-	Network::Network(const std::vector<int>& layerSizes, const ActivationFunction* sigma, const std::string labels)
+	Network::Network(const std::vector<int>& layerSizes, std::unique_ptr<ActivationFunction>&& sigma, std::string_view labels)
 		: m_layerSizes(layerSizes)
-		, m_sigma(sigma)
+		, m_sigma(std::move(sigma))
 		, m_labels(labels)
 	{
 		assert(layerSizes.size() >= 3);
@@ -35,11 +36,6 @@ namespace bpn
 		m_numOnLastHidden = m_layerSizes[m_numLayers - 2];
 		InitializeNetwork();
 		InitializeWeights();
-	}
-
-	Network::Network(const std::vector<int>& layerSizes, const ActivationFunction* sigma)
-		: Network::Network(layerSizes, sigma, std::string(""))
-	{
 	}
 
 	Network::Network(std::istream& is)

@@ -11,24 +11,23 @@
 
 namespace bpn {
 
-	ActivationFunction* ActivationFunction::deserialize(std::string_view s)
+	std::unique_ptr<ActivationFunction> ActivationFunction::deserialize(std::string_view s)
 	{
 		if (s.contains("Sigmoid("))
 		{
 			auto is_digit = [](char c) { return std::isdigit(c); };
 			double lambda = *std::ranges::find_if(s, is_digit) - '0';
-			return new Sigmoid(lambda);
+			return std::make_unique<Sigmoid>(lambda);
 		}
 		else if (s.contains("ReLU"))
 		{
-			return new ReLU();
+			return std::make_unique<ReLU>();
 		}
 		else if (s.contains("LeakyReLU"))
 		{
-			return new LeakyReLU();
+			return std::make_unique<LeakyReLU>();
 		}
 
 		throw std::runtime_error("Unknown activation function");
 	}
-
 }
