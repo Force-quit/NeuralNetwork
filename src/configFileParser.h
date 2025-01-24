@@ -1,25 +1,91 @@
+#pragma once
+
 // Configuration file parser
 // Copyright (C) 2021 Xavier Provençal
+// Copyright (C) 2025 Émile Laforce
+// 
 // MIT license: https://opensource.org/licenses/MIT
-//
 
-// Parses a configuratoin file.
-// `#` indicates comments except if preceded by `\`.
-//
-
-#pragma once
 #include <string>
+#include <string_view>
+#include <optional>
+#include <format>
+#include <ranges>
 #include <vector>
 #include <map>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "cmdParser.h"
 
-namespace cfp 
+class ConfigFileParser 
 {
+public:
+	ConfigFileParser(std::string_view filename)
+		: filename(filename)
+	{
+
+	}
+
+	[[nodiscard]] std::optional<std::string> run()
+	{
+		std::ifstream file(filename);
+		if (!file.good())
+		{
+			return std::format("Error opening configuration file `{}`", filename);
+		}
+
+		std::string line;
+		std::uint16_t lineCount{};
+		while (std::getline(file, line))
+		{
+			++lineCount;
+
+			if (line.starts_with('#') || line.empty())
+			{
+				continue;
+			}
+
+			auto splitValues = line | std::ranges::views::split('=');
+			std::vector<std::string> keyAndValue = splitValues | std::ranges::to<std::vector<std::string>>();
+
+			if (keyAndValue.size() != 2)
+			{
+				return std::format("Configuration file `{}` line {} is not a key-value pair", filename, lineCount);
+			}
+
+			entries[keyAndValue[0]] = keyAndValue[1];
+		}
+
+		return std::nullopt;
+	}
+
 	template<typename T>
-	T convert(const std::string& s)
+	T get(const std::string& name) const 
+	{
+		std::map<std::string, std::string>::const_iterator it = entries.find(name);
+		if (it == entries.end()) {
+			std::stringstream ss;
+			ss << "Configuration file `" << filename << "` does not specify the required feild `" << name << "`\n";
+			throw std::runtime_error(ss.str());
+		}
+		return convert<T>(it->second);
+	}
+
+	template<typename T>
+	T get(const std::string& name, const T& defaultValue) const
+	{
+		std::map<std::string, std::string>::const_iterator it = entries.find(name);
+		if (it == entries.end()) {
+			return defaultValue;
+		}
+		return convert<T>(it->second);
+	}
+
+private:
+
+	template<typename T>
+	static T convert(const std::string& s)
 	{
 		std::stringstream ss(s);
 		T t;
@@ -27,100 +93,8 @@ namespace cfp
 		return t;
 	}
 
-	class Parser 
-	{
-	private:
-		std::string filename;
-		std::map<std::string, std::string> entries;
-
-	public:
-
-		Parser(const std::string& filename) : filename(filename)
-		{
-		}
-
-
-		bool run()
-		{
-			std::ifstream file(filename);
-			if (!file.good())
-			{
-				std::stringstream ss;
-				ss << "Unable to read configuration file `" << filename << "`.\n";
-				throw std::runtime_error(ss.str());
-			}
-
-			std::string line;
-			int lineCount = 0;
-			while (std::getline(file, line))
-			{
-				lineCount++;
-				std::stringstream ss(removeComments(line));
-
-				// Get key, if empty jump to next line
-				std::string key;
-				ss >> key;
-				if (key.length() == 0)
-					continue;
-
-				std::string equalSign;
-				ss >> equalSign;
-				if (equalSign != "=") {
-					std::cerr << "Error reading configuration file `" << filename << "` at line " << lineCount << ".\n";
-					std::cerr << "Second token should be `=` but got `" << equalSign << "`." << std::endl;
-					return false;
-				}
-
-				std::stringstream value;
-				std::string tmp;
-				ss >> tmp;
-				value << tmp;
-				while (ss >> tmp)
-				{
-					value << " " << tmp;
-				}
-				entries[key] = value.str();
-			}
-			return true;
-		}
-
-		template<typename T>
-		T get(const std::string& name) const {
-			std::map<std::string, std::string>::const_iterator it = entries.find(name);
-			if (it == entries.end()) {
-				std::stringstream ss;
-				ss << "Configuration file `" << filename << "` does not specify the required feild `" << name << "`\n";
-				throw std::runtime_error(ss.str());
-			}
-			return convert<T>(it->second);
-		}
-
-		template<typename T>
-		T get(const std::string& name, const T& defaultValue) const {
-			std::map<std::string, std::string>::const_iterator it = entries.find(name);
-			if (it == entries.end()) {
-				return defaultValue;
-			}
-			return convert<T>(it->second);
-		}
-
-	private:
-		std::string removeComments(const std::string& line, size_t startAt = 0)
-		{
-			size_t pos = line.find("#", startAt);
-			if (pos == std::string::npos) {
-				return line;
-			}
-			if (pos > 0 && line.at(pos - 1) == '\\') {
-				return removeComments(line, pos + 1);
-			}
-			return line.substr(0, pos);
-		}
-
-	};
-
 	template<>
-	bool convert<bool>(const std::string& s) 
+	static bool convert<bool>(const std::string& s) 
 	{
 		if (s == "1" || s == "true" || s == "True" || s == "TRUE")
 		{
@@ -134,4 +108,7 @@ namespace cfp
 		ss << "Configuration file, bad value for boolean field : `" << s << "`\n";
 		throw std::runtime_error(ss.str());
 	}
-}
+
+	std::string filename;
+	std::map<std::string, std::string> entries;
+};
