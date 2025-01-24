@@ -39,7 +39,6 @@ int main()
 	}
 
 	std::string trainingDataPath(configParser.get<std::string>("datafile"));
-	std::string format(configParser.get<std::string>("format", "numberList"));
 	std::string layers(configParser.get<std::string>("layers", "[]"));
 	std::string exportFile(configParser.get<std::string>("export", ""));
 	std::string activationFunction(configParser.get<std::string>("activation", "Sigmoid(1)"));
@@ -52,15 +51,7 @@ int main()
 	std::uint16_t verbosity{ configParser.get<std::uint16_t>("verbosity", 1) };
 
 	// Validation of the input format : eigher `binary` or `numberList`.
-	bpn::DataReader::Format inputDataFormat;
-	if (format.compare("binary") == 0)
-	{
-		inputDataFormat = bpn::DataReader::Format::binary;
-	}
-	else if (format.compare("numberList") == 0)
-	{
-		inputDataFormat = bpn::DataReader::Format::numberList;
-	}
+	bpn::DataReader::Format inputDataFormat{ bpn::DataReader::Format::binary };
 
 	// Create neural network
 	bpn::Network* nn = NULL;

@@ -1,9 +1,6 @@
 # File that contains the training data set.
 datafile=mnist-ubyte
 
-# Format of the training data file.
-format=binary
-
 # The shape of a new neural network
 # Comma separated list of the layers sizes (e.g. 16,4,4,3 or 1,1,1).
 #     First layer is the input neurons.
