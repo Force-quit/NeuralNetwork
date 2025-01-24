@@ -1,0 +1,97 @@
+# This file is use to configure the `trainBPN` program.
+# This file is an alternative to the use of command line parameters.
+#
+# Lines that start with `#` are comments, they are ignored by the program.
+# Simply uncomment the options that you don't want to specify on using the CLI.
+#
+
+### Path (relative of absolute) to the file that contains the training data set.
+### This file should be to the CSV format.
+### 
+### This information is mandatory.
+###
+datafile = mnist-ubyte
+
+### Format of the training data file.
+###      numberList, Comma separated list of numbers. The first ones are the
+###                  values of the input nodes and the following ones are the
+###                  expected values of the output nodes. The number of values
+###                  must fit the number of intput/output nodes.
+###      text,       Format is "<text>",<expectedOutput> where the expected
+###                  output is given a comma separated list of integers. Size of
+###                  the inputs may not equal the number of input nodes. If less
+###                  then extra zeros are added. If more, extra characters are
+###                  ignored.
+### Default is `numberList`
+format = binary
+#format = numberList
+# format = text
+
+### The shape of a new neural network
+### Comma separated list of the layers sizes (e.g. 16,4,4,3 or 1,1,1).
+###     First layer is the input neurons.
+###     Last layer is the output layer.
+### The default value is '[]'.
+layers = 784,20,20,10
+
+### Import an existing neural network
+###    Import neural network from file before training. ( "-" stands for stdin)
+# import = ../Examples/MNIST/nn_784_10_10
+
+### Export the neural network after training.
+export = nn_fully_trained
+
+
+### Choice of activation function
+### Available values are
+###    Sigmoid(k), Logistic function with stepness ``k``.
+###    ReLU,       Rectified linear unit.
+###    LeakyReLY,  Leaky ReLU, like ReLU but with small gradiant (1/100)
+### The default value is 'Sigmoid(1)'.
+activation = Sigmoid(1)
+
+
+### Maximum number of iterations
+### The training will stop after that much iterations completed 
+### Note that `-1` stands for `2^64-1`.
+### The default value is '100'.
+maxEpoch = 100
+
+
+### Learning rate
+### Multiplicative coefficient on error gradient.
+### The default value is '0.010000'.
+# learningRate = 0.01
+
+
+### Momentum
+### Multiplicative coefficient applied on previous error delta when non using
+### batch learning.
+### The default value is '0.900000'.
+# momentum = 0.9
+
+
+### Batch learning
+### The learning program uses batch learning or not (1 : yes, 0 : no).
+### The default value is '0'.
+# batchLearning = 0
+
+
+### Accuracy
+### Desired accuracy. Training stops when the desired accuracy is obtained.
+### The default value is '95.000000'.
+accuracy = 99.0
+
+### Labels for output nodes. Comma separated list of work without white spaces.
+### Only for new networks and is only used with the GUI visualization tool.
+### The default value is ''.
+labels = 0,1,2,3,4,5,6,7,8,9
+
+### Verbosity level
+###    Level 0: quiet mode.
+###    Level 1: prints training evolution.
+###    Level 2: prints NN at initialization and at the end.
+###    Level 3: prints NN at every iteration of the learning phase.
+### The default value is '1'.
+# verbosity = 1
+

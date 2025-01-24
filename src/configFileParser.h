@@ -16,12 +16,19 @@
 #include <sstream>
 #include "cmdParser.h"
 
-namespace cfp {
-
+namespace cfp 
+{
 	template<typename T>
-	T convert(const std::string& s);
+	T convert(const std::string& s)
+	{
+		std::stringstream ss(s);
+		T t;
+		ss >> t;
+		return t;
+	}
 
-	class Parser {
+	class Parser 
+	{
 	private:
 		std::string filename;
 		std::map<std::string, std::string> entries;
@@ -39,8 +46,8 @@ namespace cfp {
 			if (!file.good())
 			{
 				std::stringstream ss;
-              ss << "Unable to read configuration file `" << filename << "`.\n";
-              throw std::runtime_error( ss.str() );
+				ss << "Unable to read configuration file `" << filename << "`.\n";
+				throw std::runtime_error(ss.str());
 			}
 
 			std::string line;
@@ -112,16 +119,9 @@ namespace cfp {
 
 	};
 
-	template<typename T>
-	T convert(const std::string& s) {
-		std::stringstream ss(s);
-		T t;
-		ss >> t;
-		return t;
-	}
-
 	template<>
-	bool convert<bool>(const std::string& s) {
+	bool convert<bool>(const std::string& s) 
+	{
 		if (s == "1" || s == "true" || s == "True" || s == "TRUE")
 		{
 			return true;
@@ -134,6 +134,4 @@ namespace cfp {
 		ss << "Configuration file, bad value for boolean field : `" << s << "`\n";
 		throw std::runtime_error(ss.str());
 	}
-
-
 }

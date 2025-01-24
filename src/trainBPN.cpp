@@ -15,89 +15,18 @@
 #include "DataReader.h"
 #include "Matrix.h"
 #include "vectorstream.h"
-#include "StopFileWatcher.h"
+#include "StopWatcher.h"
 
-#if _MSC_VER
-#pragma warning(push, 0)
-#pragma warning(disable: 4702)
-#endif
-
-#include "cmdParser.h"
 #include "configFileParser.h"
-
-#if _MSC_VER
-#pragma warning(pop)
-#endif
-
-const char* DEFAULTCONFIGURATIONFILENAME = "config.txt";
 
 // Operators from "vectorstream.h"
 using bpn::operator<<;
 using bpn::operator>>;
 
-//-------------------------------------------------------------------------
-
-void configureCmdParser(cli::Parser& cmdParser)
-{
-	//
-	// Definition of the command line arguments
-	//
-	std::stringstream ss;
-	ss << "usage: trainBPN [--help] [configurationFile] [<args>]\n\n"
-		"  There are three ways to run this program:\n"
-		"  1. Without CLI parameters\n"
-		"     Default configuration file `" << DEFAULTCONFIGURATIONFILENAME << "` is used.\n"
-		"  2. Exactly ONE parameter\n"
-		"     This unique parameter must be the absolute or relative path to a configuraion file\n"
-		"  3. Using CLI parameters and no configuration file\n"
-		"\n";
-	cmdParser.setHelpText(ss.str());
-	cmdParser.set_optional<std::string>("h", "help", "", "Path to training data file.");
-	cmdParser.set_optional<std::string>("d", "datafile", "", "Path to training data file.");
-	cmdParser.set_optional<std::string>("f", "format", "numberList", "Format of the training data file.\n"
-		"     numberList, Comma separated list of numbers. The first ones are the\n"
-		"                 values of the input nodes and the following ones are the\n"
-		"                 expected values of the output nodes. The number of values\n"
-		"                 must fit the number of intput/output nodes.\n"
-		"     binary,     First 4 bytes is the number of data, next 4 bytes is the\n"
-		"                 number of input values in each data, next 4 bytes is the\n"
-		"                 number of output values in each data. Then, each byte is\n"
-		"                 one data value. Each value is converted to a float by\n"
-		"                 dividing it by 255."
-	);
-	cmdParser.set_optional<std::string>("l", "layers", "[]", "Comma separated list of the layers sizes (e.g. 16,4,4,3 or 1,1,1).\n     First layer is the input neurons.\n     Last layer is the output layer.");
-	cmdParser.set_optional<std::string>("i", "import", "", "Import neural network from file before training. ( \"-\" stands for stdin)");
-	cmdParser.set_optional<std::string>("e", "export", "", "Export neural network to file after training. ( \"-\" stands for stdout)");
-
-	cmdParser.set_optional<std::string>("s", "activation", "Sigmoid(1)", "The actiation function. Available options are:\n"
-		"     Sigmoid(k), Logistic function with stepness ``k``.\n"
-		"     ReLU,       Rectified linear unit.\n"
-		"     LeakyReLY,  Leaky ReLU, like ReLU but with small gradiant (1/100)\n"
-		"                 when the unit is not active.");
-	cmdParser.set_optional<uint64_t>("m", "maxEpoch", 100, "Maximum num of iterations (-1 stands for 2^64-1).");
-	cmdParser.set_optional<double>("r", "learningRate", 0.01, "Multiplicative coefficient on error gradient");
-	cmdParser.set_optional<double>("mom", "momentum", 0.9, "Multiplicative coefficient applied on previous error delta when non using batch learning.");
-	cmdParser.set_optional<bool>("b", "batchLearning", false, "Use batch learning (1 : yes, 0 : no).");
-	cmdParser.set_optional<double>("a", "accuracy", 95, "Desired accuracy. Training stops when the desired accuracy is obtained.");
-	cmdParser.set_optional<std::string>("L", "labels", "", "Labels for output nodes. Comma separated list of work without white spaces.\n"
-		"   Only for new networks and is only used with the GUI visualization tool.");
-	cmdParser.set_optional<int32_t>("v", "verbosity", 1, "Verbosity level.\n     Level 0: quiet mode.\n     Level 1: prints training evolution.\n     Level 2: prints NN at initialization and at the end.\n     Level 3: prints NN at every iteration of the learning phase.");
-}
-
-
 int main(int argc, char* argv[])
 {
-	StopFileWatcher::init("delete_this_to_stop.txt");
+	StopWatcher::init("delete_this_to_stop.txt");
 
-	//
-	// Parameters
-	//
-	// They are either defined in the configuration file or by the command line
-	// arguments.
-	//
-	// Note that command line arguments override what's written in the
-	// configuration file.
-	// 
 	std::string trainingDataPath;
 	std::string format;
 	std::string layers;
@@ -112,91 +41,33 @@ int main(int argc, char* argv[])
 	std::string labels;
 	int32_t     verbosity;
 
-
-
-	// There are three ways to run this program
-	// 1. Without CLI arguments
-	//    In this case, the default configuration file is used.
-	// 2. Exactly ONE argument 
-	//    This unique argument must be the configuraion file.
-	// 3. Using CLI arguments and no configuration file.
-
-	std::string configurationFile;
-	bool useConfigurationFile = false;
-	// If no arguments are given then read the default config file.
-	if (argc == 1)
-	{
-		std::cout << "No arguments --> reading default configuration file `"
-			<< DEFAULTCONFIGURATIONFILENAME << "`.\n" << std::endl;
-		configurationFile = DEFAULTCONFIGURATIONFILENAME;
-		useConfigurationFile = true;
-	}
-	else if (argc == 2 && argv[1][0] != '-')
-	{
-		configurationFile = argv[1];
-		useConfigurationFile = true;
-	}
-	if (useConfigurationFile)
-	{
-		//
-		// Read data from configuration file parser
-		//
-		//
-		cfp::Parser cfParser(configurationFile);
-		try {
-			if (!cfParser.run())
-			{
-				exit(-1);
-			}
-		}
-		catch (const std::runtime_error& e)
+	cfp::Parser cfParser("config.txt");
+	try {
+		if (!cfParser.run())
 		{
-			std::cerr << e.what() << '\n';
-			std::cerr << "See 'trainBPN --help' for help." << std::endl;
 			exit(-1);
 		}
-		trainingDataPath = cfParser.get<std::string>("datafile");
-		format = cfParser.get<std::string>("format", "numberList");
-		layers = cfParser.get<std::string>("layers", "[]");
-		importFile = cfParser.get<std::string>("import", "");
-		exportFile = cfParser.get<std::string>("export", "");
-		activationFunction = cfParser.get<std::string>("activation", "Sigmoid(1)");
-		maxEpoch = cfParser.get<uint64_t>("maxEpoch", 100);
-		learningRate = cfParser.get<double>("learningRate", 0.01);
-		momentum = cfParser.get<double>("momentum", 0.9);
-		batchLearning = cfParser.get<bool>("batchLearning", 0);
-		accuracy = cfParser.get<double>("accuracy", 95);
-		labels = cfParser.get<std::string>("labels", "");
-		verbosity = cfParser.get<int32_t>("verbosity", 1);
 	}
-	else
+	catch (const std::runtime_error& e)
 	{
-		cli::Parser cmdParser(argc, argv);
-		configureCmdParser(cmdParser);
-		if (!cmdParser.run())
-		{
-			std::cout << "Invalid command line arguments." << std::endl;;
-			return 1;
-		}
-
-		//
-		// Get values from the command line parser
-		// 
-		trainingDataPath = cmdParser.get<std::string>("d");
-		format = cmdParser.get<std::string>("f");
-		layers = cmdParser.get<std::string>("l");
-		importFile = cmdParser.get<std::string>("i");
-		exportFile = cmdParser.get<std::string>("e");
-		activationFunction = cmdParser.get<std::string>("s");
-		maxEpoch = cmdParser.get<uint64_t>("m");
-		learningRate = cmdParser.get<double>("r");
-		momentum = cmdParser.get<double>("mom");
-		batchLearning = cmdParser.get<bool>("b");
-		accuracy = cmdParser.get<double>("a");
-		labels = cmdParser.get<std::string>("L");
-		verbosity = cmdParser.get<int32_t>("v");
+		std::cerr << e.what() << '\n';
+		std::cerr << "See 'trainBPN --help' for help." << std::endl;
+		exit(-1);
 	}
-
+	trainingDataPath = cfParser.get<std::string>("datafile");
+	format = cfParser.get<std::string>("format", "numberList");
+	layers = cfParser.get<std::string>("layers", "[]");
+	importFile = cfParser.get<std::string>("import", "");
+	exportFile = cfParser.get<std::string>("export", "");
+	activationFunction = cfParser.get<std::string>("activation", "Sigmoid(1)");
+	maxEpoch = cfParser.get<uint64_t>("maxEpoch", 100);
+	learningRate = cfParser.get<double>("learningRate", 0.01);
+	momentum = cfParser.get<double>("momentum", 0.9);
+	batchLearning = cfParser.get<bool>("batchLearning", 0);
+	accuracy = cfParser.get<double>("accuracy", 95);
+	labels = cfParser.get<std::string>("labels", "");
+	verbosity = cfParser.get<int32_t>("verbosity", 1);
+	
 
 	// If the user wants to create a new neural network then he must specify it's
 	// shape (number of layers and their sizes). Otherwise, an existing neural
