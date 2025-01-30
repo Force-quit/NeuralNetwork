@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.29)
 project(NeuralNetwork LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(TRAIN_SOURCES
-    src/trainBPN.cpp
+    src/main.cpp
     src/NeuralNetwork.h
     src/NeuralNetwork.cpp
     src/NeuralNetworkTrainer.h
