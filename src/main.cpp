@@ -39,46 +39,32 @@ int main()
 	}
 
 	std::string trainingDataPath(configParser.get<std::string>("datafile"));
-	std::string layers(configParser.get<std::string>("layers", "[]"));
-	std::string exportFile(configParser.get<std::string>("export", ""));
-	std::string activationFunction(configParser.get<std::string>("activation", "Sigmoid(1)"));
-	std::string labels(configParser.get<std::string>("labels", ""));
-	std::uint64_t maxEpoch(configParser.get<std::uint64_t>("maxEpoch", 100));
-	double learningRate{ configParser.get<double>("learningRate", 0.01) };
-	double momentum{ configParser.get<double>("momentum", 0.9) };
-	bool batchLearning{ configParser.get<bool>("batchLearning", 0) };
-	double accuracy{ configParser.get<double>("accuracy", 95) };
-	std::uint16_t verbosity{ configParser.get<std::uint16_t>("verbosity", 1) };
+	std::string layers(configParser.get<std::string>("layers"));
+	std::string exportFile(configParser.get<std::string>("export"));
+	std::string activationFunction(configParser.get<std::string>("activation"));
+	std::string labels(configParser.get<std::string>("labels"));
+	std::uint64_t maxEpoch(configParser.get<std::uint64_t>("maxEpoch"));
+	double learningRate{ configParser.get<double>("learningRate") };
+	double momentum{ configParser.get<double>("momentum") };
+	bool batchLearning{ configParser.get<bool>("batchLearning") };
+	double accuracy{ configParser.get<double>("accuracy") };
+	std::uint16_t verbosity{ configParser.get<std::uint16_t>("verbosity") };
 
-	// Validation of the input format : eigher `binary` or `numberList`.
 	bpn::DataReader::Format inputDataFormat{ bpn::DataReader::Format::binary };
 
-	// Create neural network
-	bpn::Network* nn = NULL;
-
-	if (layers.compare("[]") != 0) // new network
-	{
-		// Read layers sizes. The first layer is the input layer, the last layer
-		// is the output. All other layers are hidden.
-		std::vector<int> layerSizes;
-		std::stringstream ss(layers);
-		ss >> layerSizes;
-
-		nn = new bpn::Network(layerSizes, bpn::ActivationFunction::deserialize(activationFunction), labels);
-	}
+	std::vector<int> layerSizes;
+	std::stringstream ss(layers);
+	ss >> layerSizes;
+	bpn::Network nn(layerSizes, bpn::ActivationFunction::deserialize(activationFunction), labels);
 	
-	assert(nn != NULL);
-
 	if (verbosity >= 2)
 	{
-		std::cout << *nn << std::endl;
+		std::cout << nn << std::endl;
 	}
 
-	// 
-	// Data from the data file is loaded into memory
 	bpn::DataReader dataReader(trainingDataPath,
-		nn->getNumInputs(),
-		nn->getNumOutputs(),
+		nn.getNumInputs(),
+		nn.getNumOutputs(),
 		inputDataFormat,
 		verbosity);
 
@@ -105,10 +91,6 @@ int main()
 			<< std::endl;
 	}
 
-
-	//
-	// Create neural network trainer
-	// 
 	bpn::NetworkTrainer::Settings trainerSettings;
 	trainerSettings.m_learningRate = learningRate;
 	trainerSettings.m_momentum = momentum;
@@ -117,38 +99,15 @@ int main()
 	trainerSettings.m_desiredAccuracy = accuracy;
 	trainerSettings.m_verbosity = verbosity;
 
-	bpn::NetworkTrainer trainer(trainerSettings, nn);
+	bpn::NetworkTrainer trainer(trainerSettings, &nn);
 
-	//
-	// All the real work is done here
-	// 
 	trainer.Train(data);
-	// It's all over now
 
 	if (verbosity >= 2)
 	{
-		std::cout << *nn << std::endl;
+		std::cout << nn << std::endl;
 	}
 
-	// 
-	// If required, the network is exported
-	if (exportFile.compare("") != 0)
-	{
-		if (exportFile.compare("-") == 0)
-		{
-			// export to stdout
-			std::cout << nn->serialize() << std::endl;
-		}
-		else
-		{
-			// export to a text file
-			std::fstream fs;
-			fs.open(exportFile, std::fstream::out);
-			fs << nn->serialize() << std::endl;
-		}
-	}
-
-	// Useless but hey, best practices are best practices. 
-	delete nn;
-	return 0;
+	std::ofstream fs(exportFile);
+	fs << nn.serialize() << std::endl;
 }

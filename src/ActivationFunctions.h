@@ -71,7 +71,7 @@ namespace bpn
 
 		std::string serialize() const override
 		{
-			return std::format("Sigmoid({:.6f})", lambda);
+			return std::format("Sigmoid({})", lambda);
 		}
 
 		const double lambda;

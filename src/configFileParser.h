@@ -72,18 +72,7 @@ public:
 		return convert<T>(it->second);
 	}
 
-	template<typename T>
-	T get(const std::string& name, const T& defaultValue) const
-	{
-		std::map<std::string, std::string>::const_iterator it = entries.find(name);
-		if (it == entries.end()) {
-			return defaultValue;
-		}
-		return convert<T>(it->second);
-	}
-
 private:
-
 	template<typename T>
 	static T convert(const std::string& s)
 	{
